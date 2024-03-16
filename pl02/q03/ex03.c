@@ -14,6 +14,7 @@ int main(){
         if(id_proc2 = fork() == 0){
             for(int i = 0; i < 9; i++){
             printf("I am the child 1\n");
+        }
         }else if(id_proc2 > 0){
 
 
@@ -24,8 +25,10 @@ int main(){
     }else{
         perror("fork 1 Fail");
         exit(1);
+    }
 
 
     printf("\n process_id(pid) = %d \n", getpid());
     return 0;
+
 }
