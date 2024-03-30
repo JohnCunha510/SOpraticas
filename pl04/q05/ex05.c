@@ -5,26 +5,26 @@
 #include <sys/stat.h>
 
 int main(int argc, char *argv[]) {
-    int fd1, fd2, fd3;
+    FILE *fd1, *fd2, *fd3;
 
     // Open three files
-    fd1 = open("file1.txt", O_CREAT | O_WRONLY, 0644);
-    fd2 = open("file2.txt", O_CREAT | O_WRONLY, 0644);
-    fd3 = open("file3.txt", O_CREAT | O_WRONLY, 0644);
+    fd1 = fopen("file1.txt", "w+");
+    fd2 = fopen("file2.txt", "w+");
+    fd3 = fopen("file3.txt", "w+");
 
     // Print file descriptors
-    printf("File stdin descriptor: %d\n", stdin);
-    printf("File stdout descriptor: %d\n", stdout);
-    printf("File stderr descriptor: %d\n", stderr);
-    printf("File 1 descriptor: %d\n", fd1);
-    printf("File 2 descriptor: %d\n", fd2);
-    printf("File 3 descriptor: %d\n", fd3);
+    printf("File stdin descriptor: %d\n", fileno(stdin));
+    printf("File stdout descriptor: %d\n", fileno(stdout));
+    printf("File stderr descriptor: %d\n", fileno(stderr));
+    printf("File 1 descriptor: %d\n", fileno(fd1));
+    printf("File 2 descriptor: %d\n", fileno(fd2));
+    printf("File 3 descriptor: %d\n", fileno(fd3));
 
 
     // Close files
-    close(fd1);
-    close(fd2);
-    close(fd3);
+    fclose(fd1);
+    fclose(fd2);
+    fclose(fd3);
 
     return 0;
 }
