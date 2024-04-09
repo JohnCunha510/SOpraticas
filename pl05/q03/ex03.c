@@ -27,11 +27,9 @@ int main() {
         // Generate a random number between 0 and 9
         srand(getpid());
         int secret_number = rand() % 10;
-        printf("Number: %d\n", secret_number);
         
-
         // Open FIFO for writing
-        fd = open(FIFO_NAME, O_WRONLY);
+        fd = open(FIFO_NAME, O_RDWR);
         if (fd == -1) {
             perror("Child: Error opening FIFO for writing");
             exit(1);
@@ -41,25 +39,23 @@ int main() {
             // Read guess from parent
             read(fd, &guess, sizeof(guess));
             printf("Number Guess: %d\n", guess);
+            printf("Secret_number: %d\n", secret_number);
 
             // Check guess against number
             if (guess == secret_number) {
                 // Send hit message to parent
                 buffer[0] = '0'; // Hit
                 write(fd, buffer, sizeof(buffer));
-                printf("child buffer: %d\n", buffer[0]);
                 close(fd);
                 break;
             } else if (guess < number) {
                 // Send below message to parent
                 buffer[0] = '-'; // Below
                 write(fd, buffer, sizeof(buffer));
-                printf("child buffer: %d\n", buffer[0]);
             } else {
                 // Send above message to parent
                 buffer[0] = '+'; // Above
                 write(fd, buffer, sizeof(buffer));
-                printf("child buffer: %d\n", buffer[0]);
             }
         }
     } else { // Parent process
@@ -69,10 +65,11 @@ int main() {
             perror("Parent: Error opening FIFO for reading");
             exit(1);
         }
+        // Seed random number generator
+            srand(time(NULL));
 
         while (1) {
-            // Seed random number generator
-            srand(time(NULL));
+            
             // Generate a random number between 0 and 9
             number = rand() % 10;
 
@@ -85,7 +82,6 @@ int main() {
 
             // Check response
             result = buffer[0];
-            printf("Result: %d\n", result);
             if (result == '0') {
                 printf("Congratulations! You guessed the number.\n");
                 break;
@@ -99,7 +95,7 @@ int main() {
         // Close FIFO
         close(fd);
         // Remove FIFO
-    unlink(FIFO_NAME);
+        unlink(FIFO_NAME);
     }
 
     return 0;
