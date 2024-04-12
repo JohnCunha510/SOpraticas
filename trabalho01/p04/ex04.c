@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     if (pid_num == 0) {  // Child process
+        pid_t parent_pid = getppid();
         int child_table[MAXBUF];
 
         // Open file pointer for filetable.bin
@@ -56,7 +57,7 @@ int main(int argc, char *argv[]) {
         printf("table[%d] = %d\n", i ,child_table[i]);
         }
 
-        while (getppid() != 1){} // wait for parent process to terminate
+        while (getppid() == parent_pid){} // wait for parent process to terminate
         printf("\nThe child process is terminating.\n\n");
         exit(0);
 
