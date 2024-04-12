@@ -23,6 +23,7 @@ void catch_HUP(){
 }
 void catch_TERM(){
     printf("Process terminating...\n");
+    unlink("agent.pid");
     exit(0);
 }
 
@@ -61,7 +62,6 @@ int main(int argc, char *argv[]) {
 
     for( ; ; )
         pause();
-
 
     return 0;
 }

@@ -9,7 +9,7 @@
 
 pid_t pid_agent;
 
-void catch_INT(){
+void catch_INT(){ // catch Ctrl+C
     kill(pid_agent, SIGTERM);
     exit(0);
 }
@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-
 
     return 0;
 }
