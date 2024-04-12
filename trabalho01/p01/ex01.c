@@ -84,6 +84,7 @@ int main(int argc, char *argv[]) {
         addr.sun_family = AF_UNIX;
         strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
         // Connect to the socket
+        usleep(100*1000); // wait a bit til de socket is created in find
         if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
             perror("cut socket connect");
             exit(1);
