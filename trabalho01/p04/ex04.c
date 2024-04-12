@@ -58,12 +58,12 @@ int main(int argc, char *argv[]) {
         }
 
         while (getppid() == parent_pid){} // wait for parent process to terminate
-        printf("\nThe child process is terminating.\n\n");
+        printf("\nThe child process is terminating.\n");
         exit(0);
 
     }else {  // Parent process
         sleep(2);
-        printf("\nThe parent process is terminating.\n\n");
+        printf("\nThe parent process is terminating.\n");
         exit(0);
     }
 
