@@ -1,3 +1,4 @@
- 1325352      4 -rw-r--r--   1 huskv510 huskv510      240 Apr 12 09:26 ./file.txt
- 1312470      8 -rw-rw-r--   1 huskv510 huskv510     5366 Apr 12 09:40 ./ex01.c
- 1325215     20 -rwxrwxr-x   1 huskv510 huskv510    20192 Apr 12 09:40 ./ex01
+  565115      4 -rw-rw-r--   1 huskv510 huskv510       42 Apr 12 12:56 ./makefile
+  565114      4 -rw-rw-r--   1 huskv510 huskv510      322 Apr 12 14:10 ./file.txt
+  565113      8 -rw-rw-r--   1 huskv510 huskv510     5392 Apr 12 14:08 ./ex01.c
+  539789     20 -rwxrwxr-x   1 huskv510 huskv510    20248 Apr 12 14:09 ./ex01

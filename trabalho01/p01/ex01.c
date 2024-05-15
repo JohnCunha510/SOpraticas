@@ -84,6 +84,7 @@ int main(int argc, char *argv[]) {
         addr.sun_family = AF_UNIX;
         strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path) - 1);
         // Connect to the socket
+        usleep(100*1000); // wait a bit til de socket is created in find
         if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
             perror("cut socket connect");
             exit(1);
@@ -159,3 +160,20 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+/*
+linha de comando shell: “find . -type f -ls | cut -c 2- | sort -n -k 7 >file.txt ; less <file.txt”
+
+Esta linha é dividida através de ";" em dois comadandos shell:
+    1. find . -type f -ls | cut -c 2- | sort -n -k 7 >file.txt
+    2. less <file.txt
+
+No primeiro commando find, cut e sort são ligados através de Pipelines "|"
+    "find" procura todos os ficheiros "-type f" na diretoria "." e lista a informação detalhada dos ficheiros "-ls".
+    "cut" com "-c 2-" significa que cortamos a linha a partir do segundo caratere até o fim da linha,
+ou seja, retira o primeiro caratere de todas as linhas.
+    "sort" ordena tododas as linha numericamente "-n", baseado no 7º campo de cada linha
+    ">file.txt" redireciona o output de "sort" para o ficheiro "file.txt", se o ficheiro não existir ele cria um
+
+No segundo comado "less" é usado para visualizar o ficheiro "file.txt" no terminal
+
+*/
