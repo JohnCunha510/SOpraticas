@@ -9,12 +9,13 @@
 #include <signal.h>
 
 FILE *input_bin, *output;
-sem_t *semaphore;
+sem_t *write_semaphore, *read_semaphore;
 int shm_fd;
 double *shared_memory;
 
 void catch_SIGNAL(){
-    sem_close(semaphore); // close semaphore
+    sem_close(write_semaphore); // close write_semaphore
+    sem_close(read_semaphore); // close read_semaphore
     munmap(shared_memory, sizeof(double)); // unmap shared memory
     close(shm_fd); // close shared memory
     fclose(input_bin);// Close input.bin file
@@ -48,32 +49,37 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // open the semaphore
-    if((semaphore = sem_open("my_semaphore", O_RDWR)) == SEM_FAILED){
-        perror("my_semaphore did not open");
+    // open the write_semaphore and the read_semaphore
+    if((write_semaphore = sem_open("my_write_semaphore", O_RDWR)) == SEM_FAILED){
+        perror("my_write_semaphore did not open");
         return 1;
     }
+    if((read_semaphore = sem_open("my_read_semaphore", O_RDWR)) == SEM_FAILED){
+        perror("my_read_semaphore did not open");
+        return 1;
+    }
+    
     // open input.bin for writing
     if ((input_bin = fopen("input.bin", "w")) == NULL) {
         perror("input.bin did not create");
         exit(1);
     }
 
-    // send semaphore and read shared memory to input.bin file
-    // 1 double at a time
+    // shared memory to input.bin file, 1 double at a time
     // if shared memory == DBL_MIN, stop reading shared memory
-    // and send 1 last semaphore so client process can close and unlink the smaphore
-    sem_post(semaphore);
-    usleep(100);
+    // and post 1 last write_semaphore so client process can close and unlink both semaphores
+    sem_post(write_semaphore);// Signal client that it can write the first value
+    sem_wait(read_semaphore); // wait for client to write the first value
     while (*shared_memory != DBL_MIN) {
         n_numbers += 1;
         fwrite(shared_memory, sizeof(double), 1, input_bin);
         //printf("Value read from shared memory: %f\n", *shared_memory);
-        sem_post(semaphore); // Signal client that it can write the next value
-        usleep(100);
+        sem_post(write_semaphore); // Signal client that it can write the next value
+        sem_wait(read_semaphore);// wait for client to write the next value
     }
-    sem_post(semaphore);
-    sem_close(semaphore);
+    sem_post(write_semaphore); // Signal client that it can close both semaphores
+    sem_close(write_semaphore); // close write_semaphore
+    sem_close(read_semaphore); // close read_semaphore
 
     //printf("%d\n", n_numbers);
 

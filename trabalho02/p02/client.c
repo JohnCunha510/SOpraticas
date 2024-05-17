@@ -9,14 +9,16 @@
 #include <signal.h>
 
 FILE *input_file;
-sem_t *semaphore;
+sem_t *write_semaphore, *read_semaphore;
 int shm_fd;
 double *shared_memory;
 
 void catch_SIGNAL(){
     fclose(input_file);// Close input.bin file
-    sem_close(semaphore); // close semaphore
-    sem_unlink("my_semaphore"); // delete semaphore
+    sem_close(write_semaphore); // close write_semaphore
+    sem_close(read_semaphore); // close read_semaphore
+    sem_unlink("my_write_semaphore"); // delete write_semaphore
+    sem_unlink("my_read_semaphore"); // delete read_semaphore
     munmap(shared_memory, sizeof(double)); // unmap shared memory
     close(shm_fd); // close shared memory
     shm_unlink("my_shared_memory.bin"); // delete my_shared_memory.bin
@@ -67,29 +69,36 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    //create semaphore
-    if((semaphore = sem_open("my_semaphore", O_CREAT, 0666, 0)) == SEM_FAILED){
-        perror("my_semaphore did not create");
+    //create a write_semaphore and a read_semaphore
+    if((write_semaphore = sem_open("my_write_semaphore", O_CREAT, 0666, 0)) == SEM_FAILED){
+        perror("my_write_semaphore did not create");
+        return 1;
+    }
+    if((read_semaphore = sem_open("my_read_semaphore", O_CREAT, 0666, 0)) == SEM_FAILED){
+        perror("my_read_semaphore did not create");
         return 1;
     }
 
     // write 1 double to shared memory 
     // and wait for next semaphore to write a new double
     for(i = 0; i < n_numbers; i++){
-        sem_wait(semaphore);
+        sem_wait(write_semaphore); // wait for server to read the last value
         *shared_memory = buff_input[i]; // Write to shared memory
-    //    printf("%f\n", *shared_memory);
+        //printf("%f\n", *shared_memory);
+        sem_post(read_semaphore); //Signal server that it can read the next value
     }
     // after sending all doubles, write to shared memory DBL_MIN to finnish communication
-    sem_wait(semaphore);
+    sem_wait(write_semaphore); // wait for server to read the last value
     *shared_memory = DBL_MIN; // Write to shared memory
     //printf("%f\n", *shared_memory);
+    sem_post(read_semaphore); //Signal server that it can read the DBL_MIN value
 
-    sem_wait(semaphore);
-
-    // close and delete semaphore
-    sem_close(semaphore);
-    sem_unlink("my_semaphore");    
+    sem_wait(write_semaphore); // wait for server to read the DBL_MIN value
+    // close and delete both semaphores
+    sem_close(write_semaphore);
+    sem_close(read_semaphore);
+    sem_unlink("my_write_semaphore");    
+    sem_unlink("my_read_semaphore");    
 
     // unmap shared memory
     if(munmap(shared_memory, sizeof(double)) == -1){
