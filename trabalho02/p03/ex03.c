@@ -7,23 +7,7 @@
 // and global for signal handler to use;
 int *result; 
 
-void catch_HUP(){
-  free(result);
-  exit(0);
-}
-void catch_TERM(){
-  free(result);
-  exit(0);
-}
-void catch_INT(){
-  free(result);
-  exit(0);
-}
-void catch_QUIT(){
-  free(result);
-  exit(0);
-}
-void catch_KILL(){
+void catch_SIGNAL(){
   free(result);
   exit(0);
 }
@@ -74,11 +58,11 @@ int main() {
   }
 
   // Signal Handlers
-  signal(SIGHUP, catch_HUP);
-  signal(SIGTERM, catch_TERM);
-  signal(SIGINT, catch_INT);
-  signal(SIGQUIT, catch_QUIT);
-  signal(SIGKILL, catch_KILL);
+  signal(SIGHUP, catch_SIGNAL);
+  signal(SIGTERM, catch_SIGNAL);
+  signal(SIGINT, catch_SIGNAL);
+  signal(SIGQUIT, catch_SIGNAL);
+  signal(SIGKILL, catch_SIGNAL);
 
   // Wait for the thread to finish and receive value
   if (pthread_join(thread, &thread_result) != 0){
